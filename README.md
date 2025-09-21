@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="[https://www.canva.com/design/DAGzkjvKdGI/UO6so1PM6_rCw9RpjPXxJA/edit]" alt="Banner Profil">
+<img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Gmail Badge">
 </p>
 
 <p align="center">
@@ -13,13 +13,13 @@
 </p>
 
 <p align="center">
-  <a href="https://linkedin.com/in/[USERNAME_ANDA]" target="_blank">
+<a href="https://linkedin.com/in/[aku]" target="_blank">
     <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn Badge">
   </a>
-  <a href="https://twitter.com/[USERNAME_ANDA]" target="_blank">
+  <a href="https://twitter.com/[aku]" target="_blank">
     <img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white" alt="Twitter Badge">
   </a>
-  <a href="mailto:[EMAIL_ANDA]">
+  <a href="mailto:[aku@gmail.com]">
     <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Gmail Badge">
   </a>
 </p>
