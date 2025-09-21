@@ -1,0 +1,38 @@
+/* Remove default margin and prevent scrolling */
+body {
+    margin: 0;
+    overflow: hidden; /* Hide scrollbars */
+    background-color: #000;
+}
+
+/* Ensure the canvas that Three.js creates takes up the full space */
+canvas {
+    display: block;
+}
+
+/* Style for the instruction overlay */
+#instructions {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    color: white;
+    font-family: sans-serif;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    z-index: 10; /* Ensure it's on top */
+}
+
+/* Container for the joystick */
+#joystick-container {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    width: 150px;
+    height: 150px;
+    z-index: 5; /* Below instructions but above canvas */
+}
