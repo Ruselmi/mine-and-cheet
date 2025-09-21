@@ -83,7 +83,7 @@ for (let x = -worldSize / 2; x < worldSize / 2; x++) {
             scene.add(block);
             worldBlocks.push(block);
         }
-        if (height > 0 && Math.random() > 0.98) {
+        if (height > 1 && Math.random() > 0.98) { // Ensure trees don't spawn at water level
             createTree(x, height + 1, z);
         }
     }
@@ -91,10 +91,14 @@ for (let x = -worldSize / 2; x < worldSize / 2; x++) {
 
 // --- BLOCK INTERACTION ---
 const raycaster = new THREE.Raycaster();
-const highlightMesh = new THREE.Mesh( new THREE.BoxGeometry(blockSize, blockSize, blockSize), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false }) );
+const highlightMesh = new THREE.Mesh( new THREE.BoxGeometry(blockSize, blockSize, blockSize), new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide }) );
 scene.add(highlightMesh);
 
-// --- PLAYER ---
+// --- PLAYER SETUP ---
+const player = new THREE.Group();
+player.add(camera);
+scene.add(player);
+
 const playerVelocity = new THREE.Vector3();
 const playerDirection = new THREE.Vector3();
 const playerSpeed = 8.0;
@@ -102,15 +106,17 @@ const playerHeight = 1.8;
 let onGround = false;
 const clock = new THREE.Clock();
 const keys = {};
+let joystickDirection = { x: 0, y: 0 };
+
+camera.position.y = playerHeight;
+player.position.set(0, getTerrainHeight(0, 0) + playerHeight, 0);
+
 
 // --- CONTROLS (PC & Mobile) ---
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 let controls;
-let playerObject;
-let joystickDirection = { x: 0, y: 0 };
 
 if (isMobile) {
-    playerObject = camera;
     document.getElementById('instructions').style.display = 'none';
     const joystickContainer = document.getElementById('joystick-container');
     const joystick = nipplejs.create({ zone: joystickContainer, mode: 'static', position: { left: '50%', top: '50%' }, color: 'white', size: 150 });
@@ -123,30 +129,27 @@ if (isMobile) {
 
     let lastTouchX = 0, lastTouchY = 0;
     document.addEventListener('touchstart', (e) => {
-        if (e.touches[0].clientX > window.innerWidth / 2) {
+        if (e.touches.length === 1 && e.touches[0].clientX > window.innerWidth / 2) {
             lastTouchX = e.touches[0].clientX; lastTouchY = e.touches[0].clientY;
         }
     });
     document.addEventListener('touchmove', (e) => {
         if (e.touches[0].clientX > window.innerWidth / 2) {
             const touchX = e.touches[0].clientX; const touchY = e.touches[0].clientY;
-            playerObject.rotation.y -= (touchX - lastTouchX) * 0.005;
-            playerObject.rotation.x -= (touchY - lastTouchY) * 0.005;
-            playerObject.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, playerObject.rotation.x));
+            player.rotation.y -= (touchX - lastTouchX) * 0.005; // Rotate player group
+            camera.rotation.x -= (touchY - lastTouchY) * 0.005; // Rotate camera up/down
+            camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
             lastTouchX = touchX; lastTouchY = touchY;
         }
     });
 } else {
-    controls = new PointerLockControls(camera, renderer.domElement);
-    playerObject = controls.getObject();
-    scene.add(playerObject);
+    controls = new PointerLockControls(camera, document.body);
     const instructions = document.getElementById('instructions');
     instructions.addEventListener('click', () => controls.lock());
     document.addEventListener('keydown', (event) => { keys[event.code] = true; });
     document.addEventListener('keyup', (event) => { keys[event.code] = false; });
 }
 
-playerObject.position.set(0, getTerrainHeight(0, 0) + playerHeight, 0);
 
 window.addEventListener('mousedown', (event) => {
     if (!isMobile && (controls && !controls.isLocked)) return;
@@ -182,8 +185,8 @@ function animate() {
     playerVelocity.y -= 9.8 * 2.0 * delta;
 
     if (isMobile) {
-        playerDirection.z = -joystickDirection.y;
-        playerDirection.x = -joystickDirection.x;
+        playerDirection.z = joystickDirection.y;
+        playerDirection.x = joystickDirection.x;
     } else if (controls.isLocked) {
         playerDirection.z = Number(keys['KeyW']) - Number(keys['KeyS']);
         playerDirection.x = Number(keys['KeyD']) - Number(keys['KeyA']);
@@ -193,25 +196,21 @@ function animate() {
     playerDirection.normalize();
 
     const moveSpeed = playerSpeed * delta;
-    const forward = new THREE.Vector3();
-    camera.getWorldDirection(forward);
-    const right = new THREE.Vector3().crossVectors(camera.up, forward);
-
-    if (isMobile) {
-        playerObject.position.addScaledVector(forward, playerDirection.z * moveSpeed);
-        playerObject.position.addScaledVector(right, playerDirection.x * moveSpeed);
+    if(isMobile) {
+        player.translateX(playerDirection.x * moveSpeed);
+        player.translateZ(playerDirection.z * moveSpeed);
     } else if (controls.isLocked) {
-        controls.moveForward(playerDirection.z * moveSpeed);
         controls.moveRight(playerDirection.x * moveSpeed);
+        controls.moveForward(playerDirection.z * moveSpeed);
     }
 
-    playerObject.position.y += playerVelocity.y * delta;
+    player.position.y += playerVelocity.y * delta;
 
-    const groundHeight = getTerrainHeight(Math.round(playerObject.position.x), Math.round(playerObject.position.z));
+    const groundHeight = getTerrainHeight(Math.round(player.position.x), Math.round(player.position.z));
     const playerGroundY = groundHeight + playerHeight;
-    if (playerObject.position.y < playerGroundY) {
+    if (player.position.y < playerGroundY) {
         playerVelocity.y = 0;
-        playerObject.position.y = playerGroundY;
+        player.position.y = playerGroundY;
         onGround = true;
     }
 
