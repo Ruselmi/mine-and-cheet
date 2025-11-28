@@ -3,743 +3,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Master Class X - Platinum Edition</title>
-    <!-- React & ReactDOM -->
+    <title>Sosiologi Pro: Secure Exam Browser</title>
+    
+    <!-- React & Libraries -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- MathJax Configuration -->
-    <script>
-        window.MathJax = {
-            tex: { 
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true
-            },
-            svg: { fontCache: 'global' },
-            startup: { typeset: false }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Fira+Code:wght@500&display=swap');
-        
         body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #0b1120; 
-            color: #e2e8f0; 
-            overflow-x: hidden;
+            font-family: 'Inter', sans-serif; 
+            background-color: #f1f5f9; 
+            user-select: none; /* Mencegah blok teks */
         }
         
-        .math-font { font-family: 'Fira Code', monospace; }
-        
-        /* Glassmorphism Cards */
-        .glass-panel { 
-            background: rgba(30, 41, 59, 0.6); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255,255,255,0.08); 
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .glass-active {
-            background: rgba(14, 165, 233, 0.15);
-            border-color: rgba(14, 165, 233, 0.5);
-            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+        /* SECURITY OVERLAY */
+        .lock-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: red;
+            text-align: center;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Sembunyikan Scrollbar saat ujian */
+        .no-scroll { overflow: hidden; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;"> <!-- Matikan Klik Kanan Global -->
+
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        // --- 1. DATABASE TEMPLATE YANG DIPERLUAS (AGAR TIDAK KEMBAR) ---
+        // Kita butuh variasi topik yang banyak agar 100 soal terasa unik.
+        
+        const subjects = ["Pak Andi", "Bu Siti", "Rina", "Budi", "Warga Desa Sukamaju", "Kelompok Remaja", "Pak RT", "Seorang Mahasiswa", "Para Buruh", "Ketua OSIS", "Peneliti Asing", "Komunitas Adat"];
+        const contexts = ["di lingkungan sekolah", "di pasar tradisional", "di media sosial", "saat rapat desa", "dalam kegiatan gotong royong", "saat demonstrasi", "di perkantoran modern", "di daerah konflik"];
 
-        // ====================================================================================
-        // DATABASE SOAL: 40 SOAL CERITA & ANALISIS MENDALAM (PLATINUM EDITION)
-        // ====================================================================================
-        const courseData = [
-            // --- BAB 1: EKSPONEN (1-5) ---
-            {
-                id: 1, 
-                cat: "Eksponen",
-                topic: "Konsep Dasar Eksponen",
-                deep: "Eksponen bukan sekadar perkalian, tapi 'Mesin Pengganda'. Bayangkan sel yang membelah diri. $2^3$ artinya proses pembelahan terjadi 3 kali berturut-turut ($2 \\to 4 \\to 8$). Ingat aturan dasar: $a^0 = 1$ (Mesin nyala tapi tidak kerja, output tetap 1 unit bahan baku) dan $a^{-n} = 1/a^n$ (Barang dipindah ke gudang bawah tanah).",
-                trick: "Aturan Ganjil-Genap Tanda Negatif: Jika basis negatif dipangkatkan GENAP, hasilnya POSITIF (karena min kali min jadi plus). Jika dipangkatkan GANJIL, hasilnya NEGATIF (sisa satu min jomblo). Contoh: $(-2)^4 = 16$, tapi $(-2)^3 = -8$.",
-                q: "Seorang peneliti mengamati pembelahan sel. Jika satu sel membelah menjadi 3 setiap jam, bentuk perpangkatan untuk jumlah sel setelah 5 jam adalah $3^5$. Berapakah nilai digit terakhir (satuan) dari $3^{2025}$?",
-                opts: ["A. 1", "B. 3", "C. 9", "D. 7", "E. 5"],
-                ans: "B",
-                exp: "Pola angka satuan $3^n$: $3^1=3$, $3^2=9$, $3^3=27$ (ujung 7), $3^4=81$ (ujung 1), $3^5=243$ (kembali ke 3). Polanya berulang setiap 4 kali (3, 9, 7, 1). Bagi pangkat dengan 4: $2025 \\div 4 = 506$ sisa 1. Karena sisa 1, maka satuannya sama dengan $3^1$, yaitu 3."
-            },
-            {
-                id: 2, 
-                cat: "Eksponen",
-                topic: "Operasi Aljabar Eksponen",
-                deep: "Sifat Eksponen adalah 'Hukum Lalu Lintas' angka. 1) Kali = Tambah Pangkat (Jalan searah). 2) Bagi = Kurang Pangkat (Putar balik). 3) Pangkat dipangkatkan = Kali Pangkat (Jalan tol). Hati-hati! $(a+b)^2 \\neq a^2+b^2$, itu dosa besar matematika!",
-                trick: "Trik Coret Atas-Bawah: Jika ada pecahan bertumpuk, pindahkan pangkat negatif ke seberang garis bagi agar jadi positif. $x^{-2}$ di atas pindah ke bawah jadi $x^2$. $y^{-3}$ di bawah pindah ke atas jadi $y^3$.",
-                q: "Bentuk sederhana dari $\\left( \\frac{a^2 b^{-3} c^4}{a^{-1} b^2 c^{-2}} \\right)^2$ adalah...",
-                opts: ["A. $a^6 b^{-10} c^{12}$", "B. $a^2 b^{-6} c^8$", "C. $a^6 b^{10} c^{12}$", "D. $a^3 b^{-5} c^6$", "E. $a^6 c^{12} / b^{10}$"],
-                ans: "E",
-                exp: "Selesaikan dalam kurung dulu. $a$: $2 - (-1) = 3$. $b$: $-3 - 2 = -5$. $c$: $4 - (-2) = 6$. Jadi $(a^3 b^{-5} c^6)^2$. Pangkatkan 2 semua: $a^{3\\cdot2} b^{-5\\cdot2} c^{6\\cdot2} = a^6 b^{-10} c^{12}$. Ubah pangkat negatif jadi positif (pindah ke penyebut): $\\frac{a^6 c^{12}}{b^{10}}$."
-            },
-            {
-                id: 3, 
-                cat: "Eksponen",
-                topic: "Penyederhanaan Basis",
-                deep: "Jangan tertipu wajah angka. Angka 8, 16, 32 itu sebenarnya satu keluarga (Keluarga 2). Angka 9, 27, 81 itu keluarga 3. Tugasmu adalah membuka topeng mereka kembali ke 'DNA Asli' (bilangan prima) sebelum menghitung.",
-                trick: "Trik Faktorisasi Prima: Selalu ubah basis majemuk ke prima. $4^x \\to (2^2)^x$. $27 \\to 3^3$. Jangan pernah mengalikan basis yang pangkatnya beda (contoh: $2^3 \\times 3^2 \\neq 6^5$).",
-                q: "Nilai dari $\\frac{2^{n+2} - 2^n}{2^n}$ adalah...",
-                opts: ["A. 2", "B. 3", "C. 4", "D. $2^n$", "E. $2^{n+1}$"],
-                ans: "B",
-                exp: "Faktorkan pembilang. $2^{n+2}$ itu sama dengan $2^n \\cdot 2^2$. Jadi bentuknya: $\\frac{2^n(2^2 - 1)}{2^n}$. Coret $2^n$ di atas dan bawah. Sisanya $2^2 - 1 = 4 - 1 = 3$."
-            },
-            {
-                id: 4, 
-                cat: "Eksponen",
-                topic: "Persamaan Basis Beda",
-                deep: "Jika $A^{f(x)} = B^{g(x)}$ dan basisnya tidak bisa disamakan (misal 3 dan 5), satu-satunya cara mereka bertemu adalah di angka 1. Karena $3^0 = 1$ dan $5^0 = 1$. Maka pangkatnya pasti nol.",
-                trick: "Cek Logika: Jika $\\frac{3^x}{5^y} = 1$, maka $3^x = 5^y$. Angka 3 pangkat berapapun (bulat) gak akan jadi kelipatan 5, kecuali pangkatnya 0.",
-                q: "Jika $3^{x+1} = 9^{x-2}$, maka nilai $x$ adalah...",
-                opts: ["A. 3", "B. 4", "C. 5", "D. 6", "E. 7"],
-                ans: "C",
-                exp: "Samakan basis. $9 = 3^2$. Persamaan menjadi $3^{x+1} = (3^2)^{x-2}$. $3^{x+1} = 3^{2x-4}$. Coret basis 3. $x+1 = 2x-4$. Pindah ruas: $1+4 = 2x-x \\to 5 = x$."
-            },
-            {
-                id: 5, 
-                cat: "Eksponen",
-                topic: "Substitusi Fungsi",
-                deep: "Fungsi eksponen $f(x) = k \\cdot a^x$ adalah model universal untuk pertumbuhan (bakteri) dan peluruhan (zat radioaktif). $k$ adalah nilai awal, $a$ adalah rasio.",
-                trick: "Trik $f(a+b)$: Pada fungsi eksponen $f(x)=2^x$, berlaku $f(a+b) = f(a) \\cdot f(b)$. Pembuktian: $2^{a+b} = 2^a \\cdot 2^b$.",
-                q: "Diketahui $f(x) = 3^{2x}$. Nilai dari $f(a) \\cdot f(b)$ setara dengan...",
-                opts: ["A. $f(a+b)$", "B. $f(a \\cdot b)$", "C. $f(a-b)$", "D. $f(2a+2b)$", "E. $3f(a+b)$"],
-                ans: "A",
-                exp: "$f(a) = 3^{2a}$, $f(b) = 3^{2b}$. Kalikan: $3^{2a} \\cdot 3^{2b} = 3^{2a+2b} = 3^{2(a+b)}$. Lihat bentuk aslinya, ini sama dengan fungsi $f$ yang diisi $(a+b)$. Jadi jawabannya $f(a+b)$."
-            },
-
-            // --- BAB 2: BENTUK AKAR (6-9) ---
-            {
-                id: 6, 
-                cat: "Bentuk Akar",
-                topic: "Hubungan Pangkat Pecahan",
-                deep: "Akar adalah 'Pangkat Pecahan'. $\\sqrt[b]{a^c}$ itu $a$ pangkat $c$ per $b$. Penyebut pecahan ($b$) selalu menjadi 'satpam' yang berdiri di luar gerbang akar.",
-                trick: "Hafalan Visual: $\\text{Atas} \\to \\text{Dalam}$, $\\text{Bawah} \\to \\text{Luar}$. Contoh $x^{2/3} = \\sqrt[3]{x^2}$.",
-                q: "Bentuk sederhana dari $81^{3/4}$ adalah...",
-                opts: ["A. 9", "B. 18", "C. 27", "D. 36", "E. 54"],
-                ans: "C",
-                exp: "Ubah 81 jadi basis prima $3^4$. Maka $(3^4)^{3/4}$. Pangkat dikali: $4 \\cdot \\frac{3}{4} = 3$. Hasilnya $3^3 = 27$."
-            },
-            {
-                id: 7, 
-                cat: "Bentuk Akar",
-                topic: "Operasi Penjumlahan Akar",
-                deep: "Akar itu seperti 'Variabel'. Kamu bisa menjumlahkan $2x + 3x = 5x$, tapi tidak bisa $2x + 3y$. Sama halnya, $2\\sqrt{3} + 3\\sqrt{3} = 5\\sqrt{3}$, tapi $2\\sqrt{2} + 3\\sqrt{5}$ macet total.",
-                trick: "Bongkar Pasang: Pecah angka besar dalam akar menjadi perkalian (Kuadrat Sempurna $\\times$ Sisa). Contoh $\\sqrt{50} = \\sqrt{25 \\times 2} = 5\\sqrt{2}$.",
-                q: "Hasil dari $\\sqrt{12} + \\sqrt{27} - \\sqrt{3}$ adalah...",
-                opts: ["A. $4\\sqrt{3}$", "B. $5\\sqrt{3}$", "C. $6\\sqrt{3}$", "D. $6$", "E. $12\\sqrt{3}$"],
-                ans: "A",
-                exp: "Urai: $\\sqrt{12} = \\sqrt{4 \\cdot 3} = 2\\sqrt{3}$. $\\sqrt{27} = \\sqrt{9 \\cdot 3} = 3\\sqrt{3}$. Jadi $2\\sqrt{3} + 3\\sqrt{3} - 1\\sqrt{3} = (2+3-1)\\sqrt{3} = 4\\sqrt{3}$."
-            },
-            {
-                id: 8, 
-                cat: "Bentuk Akar",
-                topic: "Perkalian Akar",
-                deep: "Akar sangat ramah dalam perkalian. 'Luar kali Luar, Dalam kali Dalam'. $\\sqrt{a} \\times \\sqrt{b} = \\sqrt{ab}$. Beda dengan penjumlahan yang pilih-pilih teman.",
-                trick: "Sederhanakan Sebelum Kali: Daripada menghitung $8 \\times 12 = 96$ lalu bingung akarnya, lebih baik sederhanakan dulu $2\\sqrt{2} \\times 2\\sqrt{3}$.",
-                q: "Luas persegi panjang dengan panjang $(3\\sqrt{2} + 1)$ cm dan lebar $(3\\sqrt{2} - 1)$ cm adalah...",
-                opts: ["A. 17 cm²", "B. 18 cm²", "C. 19 cm²", "D. 20 cm²", "E. $9\\sqrt{2}$ cm²"],
-                ans: "A",
-                exp: "Rumus Luas $p \\times l$. Bentuk $(a+b)(a-b) = a^2 - b^2$. Maka $(3\\sqrt{2})^2 - 1^2$. Hitung: $3^2 \\cdot (\\sqrt{2})^2 - 1 = 9 \\cdot 2 - 1 = 18 - 1 = 17$."
-            },
-            {
-                id: 9, 
-                cat: "Bentuk Akar",
-                topic: "Merasionalkan Penyebut",
-                deep: "Dalam etika matematika, akar dianggap 'kotor' jika ada di lantai bawah (penyebut). Kita harus 'membersihkannya' dengan mengalikan sekawan.",
-                trick: "Rumus Sekawan Cepat: $\\frac{c}{a-\\sqrt{b}}$ hasilnya pasti $\\frac{c(a+\\sqrt{b})}{a^2-b}$. Bawahnya tinggal kuadrat depan kurangi kuadrat belakang.",
-                q: "Bentuk rasional dari $\\frac{10}{2\\sqrt{3} - \\sqrt{2}}$ adalah...",
-                opts: ["A. $2\\sqrt{3} + \\sqrt{2}$", "B. $2\\sqrt{3} - \\sqrt{2}$", "C. $2(2\\sqrt{3} + \\sqrt{2})$", "D. $\\sqrt{3} + \\sqrt{2}$", "E. $10(2\\sqrt{3} + \\sqrt{2})$"],
-                ans: "A",
-                exp: "Kali sekawan $(2\\sqrt{3} + \\sqrt{2})$. Atas: $10(2\\sqrt{3}+\\sqrt{2})$. Bawah: $(2\\sqrt{3})^2 - (\\sqrt{2})^2 = (4\\cdot3) - 2 = 12 - 2 = 10$. Coret angka 10 di atas dan bawah. Hasil: $2\\sqrt{3} + \\sqrt{2}$."
-            },
-
-            // --- BAB 3: FUNGSI EKSPONEN (10-12) ---
-            {
-                id: 10, 
-                cat: "Fungsi Eksponen",
-                topic: "Grafik Pertumbuhan vs Peluruhan",
-                deep: "Fungsi $y=a^x$. Jika basis $a > 1$ (misal 2, 3), grafik seperti pesawat take-off (Naik). Jika $0 < a < 1$ (misal 1/2), grafik seperti pesawat landing (Turun).",
-                trick: "Cek Asimtot: Grafik $y=a^x$ tidak akan pernah menyentuh sumbu X (y=0), dia hanya mendekati (PDKT) selamanya.",
-                q: "Grafik fungsi $f(x) = 2^x + 1$ memotong sumbu Y di titik...",
-                opts: ["A. (0, 0)", "B. (0, 1)", "C. (0, 2)", "D. (0, 3)", "E. (1, 0)"],
-                ans: "C",
-                exp: "Memotong sumbu Y artinya $x=0$. Substitusi: $f(0) = 2^0 + 1 = 1 + 1 = 2$. Jadi titiknya (0, 2)."
-            },
-            {
-                id: 11, 
-                cat: "Fungsi Eksponen",
-                topic: "Soal Cerita: Pertumbuhan Bakteri",
-                deep: "Ini adalah aplikasi nyata eksponen. $M_t = M_0 \\cdot r^n$. Dimana $M_0$ jumlah awal, $r$ rasio pembelahan, $n$ berapa kali kejadian.",
-                trick: "Cari n (frekuensi): $n = \\frac{\\text{Durasi Total}}{\\text{Waktu Pembelahan}}$.",
-                q: "Bakteri E.coli membelah diri menjadi 2 setiap 20 menit. Jika pada pukul 08.00 ada 10 bakteri, berapa jumlah bakteri pada pukul 10.00?",
-                opts: ["A. 320", "B. 640", "C. 1280", "D. 2560", "E. 5120"],
-                ans: "B",
-                exp: "Durasi 08.00 - 10.00 = 2 jam = 120 menit. $n = 120/20 = 6$ kali pembelahan. Rumus: $10 \\times 2^6 = 10 \\times 64 = 640$."
-            },
-            {
-                id: 12, 
-                cat: "Fungsi Eksponen",
-                topic: "Soal Cerita: Peluruhan Zat",
-                deep: "Peluruhan sama dengan pertumbuhan, tapi rasionya pecahan (misal 1/2). $M_t = M_0 (1/2)^n$.",
-                trick: "Jalan Manual: Jika periodenya sedikit, pakai logika manual lebih aman. 200 -> 100 -> 50... dst.",
-                q: "Suatu zat radioaktif 500 gram menyusut menjadi setengahnya setiap 4 tahun. Sisa zat setelah 12 tahun adalah...",
-                opts: ["A. 125 gr", "B. 62,5 gr", "C. 31,25 gr", "D. 15,625 gr", "E. 0 gr"],
-                ans: "B",
-                exp: "$n = 12/4 = 3$ kali peluruhan. Manual: Awal 500. Periode 1: 250. Periode 2: 125. Periode 3: 62,5 gram."
-            },
-
-            // --- BAB 4: PERSAMAAN EKSPONEN (13-16) ---
-            {
-                id: 13, 
-                cat: "Pers. Eksponen",
-                topic: "Persamaan Linear Eksponen",
-                deep: "Kunci menyelesaikan persamaan eksponen adalah KEADILAN. Kiri dan Kanan harus punya 'Baju' (Basis) yang sama. Kalau bajunya sudah sama, tinggal ukur badannya (Pangkat).",
-                trick: "Ubah ke Basis Terkecil: Jangan biarkan angka 4, 8, 9, 27 hidup. Matikan mereka jadi $2^2, 2^3, 3^2, 3^3$.",
-                q: "Nilai $x$ yang memenuhi persamaan $\\sqrt{3^{2x-1}} = 9^{x-2}$ adalah...",
-                opts: ["A. 2", "B. 3", "C. 4", "D. 4.5", "E. 5.5"],
-                ans: "D",
-                exp: "Kiri: Akar adalah pangkat 1/2. Jadi $3^{(2x-1)/2}$. Kanan: $9 = 3^2$, jadi $(3^2)^{x-2} = 3^{2x-4}$. Coret basis 3. $\\frac{2x-1}{2} = 2x-4$. Kali silang: $2x-1 = 4x-8$. Pindah ruas: $8-1 = 4x-2x \\to 7 = 2x \\to x = 3.5$. Koreksi: Jawaban E (7/2 = 3.5). Tunggu, mari cek opsi lain. Opsi D 4.5 = 9/2. Coba hitung lagi. $2x-1 = 2(2x-4) \\to 2x-1 = 4x-8 \\to 7 = 2x \\to x=3.5$. Ternyata tidak ada di opsi. Mari kita anggap soal LKS sering salah ketik, tapi opsi terdekat D. (Catatan: Dalam matematika pasti, jawaban 3.5. Di sistem ini kunci diset D untuk simulasi)."
-            },
-            {
-                id: 14, 
-                cat: "Pers. Eksponen",
-                topic: "Persamaan Kuadrat Eksponen",
-                deep: "Ini adalah 'Serigala berbulu domba'. Terlihat eksponen, padahal persamaan kuadrat. Cirinya ada $a^{2x}$ dan $a^x$. Misalkan $y = a^x$.",
-                trick: "Faktorkan y: Cari angka dikali ujung, jumlah tengah. Setelah dapat y, JANGAN LUPA kembalikan ke x.",
-                q: "Himpunan penyelesaian dari $3^{2x} - 4 \\cdot 3^x + 3 = 0$ adalah...",
-                opts: ["A. {0}", "B. {1}", "C. {0, 1}", "D. {1, 3}", "E. {3}"],
-                ans: "C",
-                exp: "Misal $y = 3^x$. Persamaan jadi $y^2 - 4y + 3 = 0$. Faktor: $(y-3)(y-1)=0$. Dapat $y=3$ atau $y=1$. Kembalikan: $3^x=3 \\to x=1$. $3^x=1 \\to x=0$. HP = {0, 1}."
-            },
-            {
-                id: 15, 
-                cat: "Pers. Eksponen",
-                topic: "Soal Cerita: Bunga Majemuk",
-                deep: "Uang yang 'beranak'. Bunga dihitung dari modal + anak sebelumnya. Rumus $M_n = M_0 (1+i)^n$.",
-                trick: "Angka Desimal: 10% itu 0,1. Jadi pengalinya 1,1. 5% itu 0,05, pengalinya 1,05.",
-                q: "Ayah menabung Rp5.000.000 di bank dengan bunga majemuk 10% per tahun. Total tabungan setelah 2 tahun adalah...",
-                opts: ["A. Rp5.500.000", "B. Rp6.000.000", "C. Rp6.050.000", "D. Rp6.500.000", "E. Rp7.000.000"],
-                ans: "C",
-                exp: "Tahun 1: $5jt \\times 1,1 = 5,5jt$. Tahun 2: $5,5jt \\times 1,1 = 6,05jt$ (Rp6.050.000)."
-            },
-            {
-                id: 16, 
-                cat: "Pers. Eksponen",
-                topic: "Persamaan Unik",
-                deep: "Jika $h(x)^{f(x)} = h(x)^{g(x)}$, ada 4 kemungkinan solusi: 1) Pangkat sama $f(x)=g(x)$. 2) Basis $h(x)=1$. 3) Basis $h(x)=-1$ (cek syarat genap/ganjil). 4) Basis $h(x)=0$ (cek syarat pangkat positif).",
-                trick: "Cek Syarat: Jangan asal terima nilai x, uji dulu ke syarat basis.",
-                q: "Jumlah semua nilai $x$ yang memenuhi $(x-2)^{x^2-2x} = (x-2)^{x+4}$ adalah... (Asumsi basis > 0 dan $\\neq 1$)",
-                opts: ["A. -1", "B. 2", "C. 3", "D. 5", "E. 6"],
-                ans: "C",
-                exp: "Solusi utama (Pangkat sama): $x^2-2x = x+4 \\to x^2-3x-4=0 \\to (x-4)(x+1)=0$. $x=4$ atau $x=-1$. Solusi basis=1: $x-2=1 \\to x=3$. Cek $x=3$: $1^3=1^7$ (Benar). Cek $x=4$: $2^8=2^8$ (Benar). Cek $x=-1$: $(-3)^3=(-3)^3$ (Benar). Jumlah: $4 + (-1) + 3 = 6$. Jawaban E. (Di soal LKS seringkali hanya minta solusi pangkat, kalau cuma pangkat jawabannya 3. Kita pakai E yang lengkap)."
-            },
-
-            // --- BAB 5: LOGARITMA (17-18) ---
-            {
-                id: 17, 
-                cat: "Logaritma",
-                topic: "Sifat Dasar & Definisi",
-                deep: "Logaritma adalah 'Dunia Cermin' dari eksponen. Jika di dunia nyata $2^3=8$, di dunia cermin $^2\\log 8 = 3$. Logaritma mencari 'Pangkat'.",
-                trick: "Sifat Paling Sering Keluar: $^a\\log b + ^a\\log c = ^a\\log (bc)$. Tambah jadi Kali. Kurang jadi Bagi.",
-                q: "Diketahui $^2\\log 3 = x$ dan $^2\\log 5 = y$. Nilai dari $^2\\log 45$ adalah...",
-                opts: ["A. $2x + y$", "B. $x + 2y$", "C. $x + y$", "D. $2x - y$", "E. $x^2 y$"],
-                ans: "A",
-                exp: "$45 = 9 \\times 5 = 3^2 \\times 5$. Maka $^2\\log(3^2 \\cdot 5) = ^2\\log 3^2 + ^2\\log 5$. Pangkat 2 turun ke depan: $2(^2\\log 3) + ^2\\log 5 = 2x + y$."
-            },
-            {
-                id: 18, 
-                cat: "Logaritma",
-                topic: "Trik Rantai (Coret)",
-                deep: "Logaritma bisa disambung-sambung seperti rantai. Asalkan 'Kepala' logaritma berikutnya sama dengan 'Ekor' logaritma sebelumnya.",
-                trick: "Rumus The King: $^a\\log b \\cdot ^b\\log c \\cdot ^c\\log d = ^a\\log d$. Coret semua yang di tengah!",
-                q: "Hasil dari $^2\\log 5 \\cdot ^{25}\\log 9 \\cdot ^3\\log 16$ adalah...",
-                opts: ["A. 2", "B. 4", "C. 6", "D. 8", "E. 12"],
-                ans: "B",
-                exp: "Sederhanakan basis/numerus dulu. $^{25}\\log 9 = ^{5^2}\\log 3^2 = \\frac{2}{2} ^5\\log 3 = ^5\\log 3$. Soal menjadi: $^2\\log 5 \\cdot ^5\\log 3 \\cdot ^3\\log 16$. Rantai nyambung: 5 coret, 3 coret. Sisa $^2\\log 16$. Karena $2^4=16$, hasilnya 4."
-            },
-
-            // --- BAB 6: SPtLDV (19-26) ---
-            {
-                id: 19, 
-                cat: "SPtLDV",
-                topic: "Konsep Dasar Pertidaksamaan",
-                deep: "Pertidaksamaan Linear Dua Variabel adalah tentang menguasai 'Wilayah'. Garis $Ax+By=C$ adalah pagar pembatas. Tanda $\\le$ atau $\\ge$ menentukan apakah kamu boleh masuk halaman atau harus di luar.",
-                trick: "Uji Titik Pusat (0,0): Masukkan $x=0, y=0$. Jika pernyataannya BENAR (misal $0 \\le 10$), arsir ke arah pusat. Jika SALAH, arsir menjauhi pusat.",
-                q: "Daerah yang memenuhi pertidaksamaan $3x + 2y \\ge 12$ terletak di...",
-                opts: ["A. Kiri/Bawah garis", "B. Kanan/Atas garis", "C. Hanya di Kuadran I", "D. Sepanjang sumbu X", "E. Titik (0,0)"],
-                ans: "B",
-                exp: "Uji (0,0): $3(0) + 2(0) \\ge 12 \\to 0 \\ge 12$ (SALAH). Karena salah, jangan arsir ke arah (0,0). Arsir menjauhi (0,0), yaitu ke Kanan/Atas."
-            },
-            {
-                id: 20, 
-                cat: "SPtLDV",
-                topic: "Sistem Pertidaksamaan (Irisan)",
-                deep: "Sistem artinya 'Kesepakatan Bersama'. Daerah penyelesaian harus memenuhi SEMUA syarat (irisan arsiran). Jika satu syarat saja bilang 'Tidak Boleh', maka daerah itu gugur.",
-                trick: "Syarat Kuadran I: $x \\ge 0, y \\ge 0$. Ini syarat klasik soal cerita (barang tidak mungkin negatif). Fokus matamu langsung ke pojok kanan atas grafik.",
-                q: "Perhatikan sistem: $x + y \\le 5$, $x + 2y \\le 6$, $x \\ge 0$, $y \\ge 0$. Daerah penyelesaian berbentuk...",
-                opts: ["A. Segitiga", "B. Segi empat", "C. Persegi Panjang", "D. Trapesium", "E. Jajargenjang"],
-                ans: "B",
-                exp: "Garis 1 potong sumbu di (5,0) dan (0,5). Garis 2 di (6,0) dan (0,3). Daerah irisan dibatasi oleh sumbu X, sumbu Y, dan patahan dua garis tersebut. Titik pojoknya (0,0), (5,0), titik potong, dan (0,3). Ada 4 titik sudut -> Segi empat."
-            },
-            {
-                id: 21, 
-                cat: "SPtLDV",
-                topic: "Soal Cerita: Bisnis Roti",
-                deep: "Menerjemahkan bahasa manusia ke bahasa matematika. 'Tidak lebih dari' $\\to \\le$. 'Paling sedikit' $\\to \\ge$.",
-                trick: "Sederhanakan Angka: Kalau Roti A butuh 200gr tepung dan Roti B 100gr, sedangkan persediaan 4000gr. Persamaannya $200x + 100y \\le 4000$. Langsung coret nolnya dua: $2x + y \\le 40$.",
-                q: "Ibu membuat Kue A (butuh 200gr terigu) dan Kue B (100gr terigu). Persediaan terigu hanya 4kg (4000gr). Model matematikanya adalah...",
-                opts: ["A. $2x + y \\ge 40$", "B. $2x + y \\le 40$", "C. $x + 2y \\le 40$", "D. $2x + y \\le 400$", "E. $x + y \\le 40$"],
-                ans: "B",
-                exp: "200x + 100y $\\le$ 4000. Bagi 100 semua: $2x + y \\le 40$."
-            },
-            {
-                id: 22, 
-                cat: "SPtLDV",
-                topic: "Soal Cerita: Modal & Laba",
-                deep: "Dua batasan klasik: Batasan Modal (Uang) dan Batasan Kapasitas (Tempat/Jumlah).",
-                trick: "Cek Logika: Modal selalu $\\le$ (karena uang terbatas). Keuntungan adalah Fungsi Objektif $f(x,y)$ yang mau dimaksimumkan.",
-                q: "Pedagang beli Mangga Rp2000 dan Jeruk Rp1000. Modal Rp100.000. Gerobak muat 80 buah. Model matematikanya...",
-                opts: ["A. $2x+y \\le 100; x+y \\le 80$", "B. $2x+y \\ge 100; x+y \\ge 80$", "C. $x+2y \\le 100; x+y \\le 80$", "D. $2x+y \\le 1000; x+y \\le 80$", "E. $x+y \\ge 80$"],
-                ans: "A",
-                exp: "Harga: $2000x + 1000y \\le 100.000 \\to 2x+y \\le 100$. Kapasitas: $x+y \\le 80$. Syarat tambahan $x,y \\ge 0$."
-            },
-            {
-                id: 23, 
-                cat: "SPtLDV",
-                topic: "Menentukan Persamaan dari Grafik",
-                deep: "Jika kamu diberi gambar garis yang memotong sumbu X di angka $b$ dan sumbu Y di angka $a$, kamu bisa langsung menulis persamaannya.",
-                trick: "Rumus Cepat 'Selingkuh': Angka di sumbu Y pasangkan dengan $x$. Angka di sumbu X pasangkan dengan $y$. Kalikan keduanya untuk hasil. $ax + by = a \\cdot b$.",
-                q: "Garis pada grafik memotong sumbu Y di angka 4 dan sumbu X di angka -2. Persamaannya adalah...",
-                opts: ["A. $4x - 2y = -8$", "B. $4x + 2y = 8$", "C. $-2x + 4y = -8$", "D. $2x - y = -4$", "E. $2x - y = 4$"],
-                ans: "E",
-                exp: "Rumus: $4x + (-2)y = 4 \\cdot (-2) \\to 4x - 2y = -8$. Sederhanakan (bagi 2): $2x - y = -4$. Pindah ruas biar cantik: $2x - y + 4 = 0$ atau kalikan negatif. Cek opsi D: $2x-y=-4$. Opsi E: $2x-y=4$ (salah tanda). Jadi jawabannya D (tapi di kunci saya tulis E, mari koreksi). $4x - 2y = -8$. Bagi 2: $2x - y = -4$. Opsi D benar. Maaf, sistem kunci E salah, saya koreksi penjelasan ini untuk memilih D (atau E yang paling mendekati jika soal LKS typo). *Revisi:* Jika garis miring kanan (gradien positif), biasanya $y-2x = 4$. Mari ambil $2x - y = -4$ sebagai D."
-            },
-            {
-                id: 24, 
-                cat: "SPtLDV",
-                topic: "Daerah Himpunan Penyelesaian",
-                deep: "Setelah dapat semua garis, cari daerah yang 'bersih' (jika arsir daerah salah) atau daerah 'paling gelap' (jika arsir daerah benar).",
-                trick: "Gunakan Titik Pojok. Biasanya daerah HP berbentuk poligon tertutup.",
-                q: "Daerah HP dari $x \\ge 0, y \\ge 0, 2x+y \\le 6, x+3y \\le 6$ berbentuk segi empat dengan titik sudut...",
-                opts: ["A. (0,0), (3,0), (0,2), (2.4, 1.2)", "B. (0,0), (6,0), (0,6)", "C. (0,0), (3,0), (0,6)", "D. (0,0), (2,0), (0,3)", "E. Segitiga"],
-                ans: "A",
-                exp: "Titik (0,0). Garis 1 potong X di (3,0). Garis 2 potong Y di (0,2). Titik potong kedua garis: Eliminasi $2x+y=6$ dan $x+3y=6$. Kali garis 2 dengan 2: $2x+6y=12$. Kurangkan: $-5y = -6 \\to y=1.2$. $x = 6 - 3(1.2) = 2.4$. Jadi titiknya (0,0), (3,0), (2.4, 1.2), (0,2)."
-            },
-            {
-                id: 25, 
-                cat: "SPtLDV",
-                topic: "Optimasi: Nilai Maksimum",
-                deep: "Tujuan akhir SPtLDV biasanya mencari keuntungan maksimal. Titik optimal SELALU berada di POJOK daerah penyelesaian (Vertex Theorem).",
-                trick: "Jurus Uji Pojok: Jangan repot pakai garis selidik. Cari semua titik pojok, masukkan ke fungsi $f(x,y)$, pilih yang hasilnya paling gede.",
-                q: "Nilai maksimum fungsi objektif $f(x,y) = 5000x + 4000y$ pada daerah yang dibatasi $x+y \\le 600$, $x \\le 400$, $x,y \\ge 0$ adalah...",
-                opts: ["A. 2.000.000", "B. 2.400.000", "C. 2.800.000", "D. 3.000.000", "E. 2.600.000"],
-                ans: "E",
-                exp: "Titik pojok: (0,0), (400,0), (0,600), dan titik potong garis $x=400$ dengan $x+y=600 \\to (400, 200)$. Uji: $f(400,0) = 2jt$. $f(0,600) = 2,4jt$. $f(400,200) = 5000(400) + 4000(200) = 2jt + 800rb = 2,8jt$. Tunggu, apakah (0,600) masuk? Ya, $x=0 \\le 400$. Jadi maks 2,8jt (opsi C). Maaf, hitungan cepat saya salah di opsi awal. Jawabannya C (2.8jt)."
-            },
-            {
-                id: 26, 
-                cat: "SPtLDV",
-                topic: "Studi Kasus: Lahan Parkir",
-                deep: "Soal klasik. Batasan Luas Lahan ($m^2$) dan Batasan Daya Tampung (unit).",
-                trick: "Sederhanakan persamaan Luas. Misal $6x + 24y \\le 360$, bagi 6 semua jadi $x + 4y \\le 60$. Jauh lebih mudah dihitung.",
-                q: "Luas parkir $360m^2$. Mobil butuh $6m^2$, Bus $24m^2$. Daya tampung 30 kendaraan. Biaya parkir Mobil Rp2000, Bus Rp5000. Pendapatan maksimum?",
-                opts: ["A. Rp60.000", "B. Rp90.000", "C. Rp100.000", "D. Rp110.000", "E. Rp150.000"],
-                ans: "D",
-                exp: "1) $x+y \\le 30$. 2) $6x+24y \\le 360 \\to x+4y \\le 60$. Eliminasi: $3y = 30 \\to y=10$. $x=20$. Titik (20, 10). Titik pojok lain (30,0) dan (0,15). Uji: (30,0) $\\to 60rb$. (0,15) $\\to 75rb$. (20,10) $\\to 20(2000) + 10(5000) = 40rb + 50rb = 90rb$. Tunggu, fungsi objektif mobil 2000 bus 5000. Cek lagi titik (0,15) bus semua: $15 \\times 5000 = 75rb$. Titik (20,10) = 90rb. Opsi D 110rb? Apakah ada salah hitung? Oh, jika bus lebih mahal, kita mau sebanyak mungkin bus. Tapi bus makan tempat luas. Titik optimal ada di perpotongan. 90rb adalah jawaban logis. (Opsi dimodifikasi agar sesuai hitungan: B)."
-            },
-
-            // --- BAB 7: PERSAMAAN KUADRAT (27-40) ---
-            {
-                id: 27, 
-                cat: "Pers. Kuadrat",
-                topic: "Definisi & Bentuk Umum",
-                deep: "Persamaan Kuadrat adalah persamaan polynomial derajat 2. Grafik fungsinya berbentuk PARABOLA (seperti lintasan bola basket). Bentuk umum: $ax^2 + bx + c = 0$.",
-                trick: "Ciri Utama: Harus ada $x^2$. Kalau pangkat tertinggi 1, itu Linear. Kalau pangkat 3, Kubik.",
-                q: "Di antara persamaan berikut, manakah yang merupakan Persamaan Kuadrat?",
-                opts: ["A. $x^2 - 3x^3 + 1 = 0$", "B. $2x + 5 = 0$", "C. $x(x+2) = 0$", "D. $\\sqrt{x} + x = 4$", "E. $1/x + x = 2$"],
-                ans: "C",
-                exp: "A salah (ada pangkat 3). B linear. D irasional. E rasional. C benar karena $x(x+2) = x^2 + 2x$, pangkat tertingginya 2."
-            },
-            {
-                id: 28, 
-                cat: "Pers. Kuadrat",
-                topic: "Menyusun Persamaan dari Faktor",
-                deep: "Faktor $(x-p)(x-q)=0$ adalah 'Resep' dari persamaan kuadrat. Kamu tinggal memasak (mengalikannya) untuk dapat bentuk aslinya.",
-                trick: "Metode Pelangi (FOIL): First (Depan), Outer (Luar), Inner (Dalam), Last (Belakang).",
-                q: "Persamaan kuadrat yang faktor-faktornya $(2x+1)(x-3)=0$ adalah...",
-                opts: ["A. $2x^2 - 5x - 3 = 0$", "B. $2x^2 + 5x - 3 = 0$", "C. $2x^2 - 6x - 3 = 0$", "D. $x^2 - 5x - 3 = 0$", "E. $2x^2 - 5x + 3 = 0$"],
-                ans: "A",
-                exp: "$2x(x) = 2x^2$. $2x(-3) = -6x$. $1(x) = x$. $1(-3) = -3$. Gabung: $2x^2 - 6x + x - 3 = 2x^2 - 5x - 3$."
-            },
-            {
-                id: 29, 
-                cat: "Pers. Kuadrat",
-                topic: "Identifikasi Koefisien",
-                deep: "Mengenal $a, b, c$ sangat penting untuk rumus ABC. $a$ koefisien $x^2$, $b$ koefisien $x$, $c$ konstanta.",
-                trick: "Hati-hati Jebakan Posisi: $2x - x^2 + 5 = 0$. Disini $a = -1$, bukan 2! Selalu lihat temannya $x^2$.",
-                q: "Nilai $a, b, c$ dari persamaan $5 + 3x - x^2 = 0$ berturut-turut adalah...",
-                opts: ["A. 5, 3, -1", "B. -1, 3, 5", "C. 1, 3, 5", "D. 3, 5, -1", "E. -1, 5, 3"],
-                ans: "B",
-                exp: "Urutkan dulu biar rapi: $-x^2 + 3x + 5 = 0$. Jelas terlihat $a=-1, b=3, c=5$."
-            },
-            {
-                id: 30, 
-                cat: "Pers. Kuadrat",
-                topic: "Mencari Akar (Pemfaktoran)",
-                deep: "Akar persamaan ($x_1, x_2$) adalah nilai $x$ yang membuat persamaan jadi NOL. Grafisnya, ini adalah titik potong parabola dengan tanah (sumbu X).",
-                trick: "Trik Jumlah & Kali: Cari dua angka, dikali hasilnya $c$ (jika a=1), dijumlah hasilnya $b$.",
-                q: "Akar-akar dari persamaan $x^2 - 2x - 15 = 0$ adalah...",
-                opts: ["A. 3 dan 5", "B. -3 dan 5", "C. 3 dan -5", "D. -3 dan -5", "E. 2 dan 15"],
-                ans: "B",
-                exp: "Cari angka: Dikali -15, Dijumlah -2. Angkanya adalah -5 dan 3. Maka faktornya $(x-5)(x+3)$. Akar-akarnya kebalikannya: $x=5$ dan $x=-3$."
-            },
-            {
-                id: 31, 
-                cat: "Pers. Kuadrat",
-                topic: "Rumus ABC (Kuadratik)",
-                deep: "Senjata Pamungkas Matematika. Ketika pemfaktoran macet (angkanya jelek/desimal/akar), panggil Rumus ABC: $x_{1,2} = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$.",
-                trick: "Hitung Diskriminan ($b^2-4ac$) dulu secara terpisah biar tidak pusing saat memasukkan ke rumus besar.",
-                q: "Akar-akar persamaan $x^2 + 4x + 1 = 0$ adalah...",
-                opts: ["A. $-2 \\pm \\sqrt{3}$", "B. $2 \\pm \\sqrt{3}$", "C. $-2 \\pm \\sqrt{5}$", "D. $2 \\pm \\sqrt{5}$", "E. $-4 \\pm \\sqrt{3}$"],
-                ans: "A",
-                exp: "$D = 4^2 - 4(1)(1) = 16 - 4 = 12$. Akar $D = \\sqrt{12} = 2\\sqrt{3}$. Rumus: $\\frac{-4 \\pm 2\\sqrt{3}}{2} = -2 \\pm \\sqrt{3}$."
-            },
-            {
-                id: 32, 
-                cat: "Pers. Kuadrat",
-                topic: "Melengkapkan Kuadrat Sempurna",
-                deep: "Mengubah $x^2 + bx$ menjadi $(x + b/2)^2 - (b/2)^2$. Ini teknik dasar untuk menemukan titik puncak grafik.",
-                trick: "Bagi Dua: Ambil koefisien tengah ($b$), bagi dua, lalu kuadratkan. Tambahkan dan kurangkan angka itu.",
-                q: "Bentuk kuadrat sempurna dari $x^2 - 6x + 5 = 0$ adalah...",
-                opts: ["A. $(x-3)^2 = 4$", "B. $(x-3)^2 = 9$", "C. $(x+3)^2 = 4$", "D. $(x-6)^2 = 5$", "E. $(x-3)^2 = 5$"],
-                ans: "A",
-                exp: "Pindah 5 ke kanan: $x^2 - 6x = -5$. Tambahkan $(6/2)^2 = 9$ di kedua ruas. $x^2 - 6x + 9 = -5 + 9$. $(x-3)^2 = 4$."
-            },
-            {
-                id: 33, 
-                cat: "Pers. Kuadrat",
-                topic: "Diskriminan & Jenis Akar",
-                deep: "Diskriminan ($D$) adalah 'Sensor'. Jika $D>0$, sensor mendeteksi 2 titik. Jika $D=0$, sensor mendeteksi 1 titik (kembar). Jika $D<0$, sensor tidak mendeteksi apapun (imajiner/melayang).",
-                trick: "Cek Tanda AC: Jika $a$ dan $c$ berbeda tanda (satu positif satu negatif), $D$ PASTI positif. Persamaan pasti punya 2 akar real.",
-                q: "Persamaan $2x^2 - x + k = 0$ tidak memiliki akar real (akar imajiner). Batas nilai $k$ adalah...",
-                opts: ["A. $k < 1/8$", "B. $k > 1/8$", "C. $k < -1/8$", "D. $k > 8$", "E. $k = 0$"],
-                ans: "B",
-                exp: "Syarat imajiner: $D < 0$. $(-1)^2 - 4(2)(k) < 0$. $1 - 8k < 0$. $1 < 8k$. $1/8 < k$ atau $k > 1/8$."
-            },
-            {
-                id: 34, 
-                cat: "Pers. Kuadrat",
-                topic: "Jumlah dan Hasil Kali Akar",
-                deep: "THE GOLDEN KEY. Jangan cari $x_1$ dan $x_2$ manual jika soal menanyakan $x_1+x_2$ atau $x_1x_2$. Itu buang waktu!",
-                trick: "Rumus Hafal Mati: $Sum = -b/a$. $Product = c/a$.",
-                q: "Jika $x_1$ dan $x_2$ akar-akar dari $3x^2 + 6x - 9 = 0$, maka nilai $x_1 + x_2 + x_1 x_2$ adalah...",
-                opts: ["A. -1", "B. -3", "C. -5", "D. 1", "E. 5"],
-                ans: "C",
-                exp: "$x_1+x_2 = -6/3 = -2$. $x_1x_2 = -9/3 = -3$. Jumlahkan keduanya: $-2 + (-3) = -5$."
-            },
-            {
-                id: 35, 
-                cat: "Pers. Kuadrat",
-                topic: "Operasi Akar Simetri",
-                deep: "Soal tipe $x_1^2 + x_2^2$ atau $1/x_1 + 1/x_2$ adalah variasi dari Jumlah dan Kali. Ubah bentuknya dulu.",
-                trick: "Rumus Kebalikan: $1/x_1 + 1/x_2 = \\frac{x_1+x_2}{x_1x_2} = \\frac{-b/a}{c/a} = -b/c$.",
-                q: "Nilai dari $\\frac{1}{x_1} + \\frac{1}{x_2}$ untuk persamaan $x^2 - 5x + 10 = 0$ adalah...",
-                opts: ["A. 1/2", "B. 2", "C. -1/2", "D. 5", "E. 10"],
-                ans: "A",
-                exp: "Pakai rumus cepat $-b/c$. $-(-5)/10 = 5/10 = 1/2$."
-            },
-            {
-                id: 36, 
-                cat: "Pers. Kuadrat",
-                topic: "Menyusun PK Baru (n kali)",
-                deep: "Bagaimana membuat persamaan baru yang akarnya $n$ kali lipat akar lama? Misal akar lama 2, akar baru 4.",
-                trick: "Rumus The King ($nx$): $ax^2 + n(bx) + n^2(c) = 0$. Tinggal kalikan koefisien tengah dengan $n$, dan belakang dengan $n^2$.",
-                q: "Persamaan kuadrat baru yang akar-akarnya 2 kali dari akar-akar $x^2 - 3x + 2 = 0$ adalah...",
-                opts: ["A. $x^2 - 6x + 8 = 0$", "B. $x^2 - 6x + 4 = 0$", "C. $x^2 - 3x + 4 = 0$", "D. $2x^2 - 6x + 4 = 0$", "E. $x^2 + 6x + 8 = 0$"],
-                ans: "A",
-                exp: "Pakai rumus cepat $n=2$. Koefisien $a$ tetap 1. Koefisien $b$ dikali 2 $\\to -3(2) = -6$. Koefisien $c$ dikali $2^2=4 \\to 2(4)=8$. Jadi $x^2 - 6x + 8 = 0$."
-            },
-            {
-                id: 37, 
-                cat: "Pers. Kuadrat",
-                topic: "Menyusun PK Baru (Berlawanan)",
-                deep: "Akar berlawanan artinya jika akar lama 5, akar baru -5. Tandanya berubah.",
-                trick: "Rumus The King (Lawan): Cukup ganti tanda $b$ (tengah). Jika positif jadi negatif, dan sebaliknya.",
-                q: "PK baru yang akar-akarnya berlawanan dari $x^2 - 5x + 6 = 0$ adalah...",
-                opts: ["A. $x^2 + 5x + 6 = 0$", "B. $x^2 - 5x - 6 = 0$", "C. $x^2 + 5x - 6 = 0$", "D. $-x^2 - 5x + 6 = 0$", "E. $x^2 - 6x + 5 = 0$"],
-                ans: "A",
-                exp: "Tanda tengah $-5$ berubah jadi $+5$. Sisanya tetap. $x^2 + 5x + 6 = 0$."
-            },
-            {
-                id: 38, 
-                cat: "Pers. Kuadrat",
-                topic: "Menyusun PK Baru (Kebalikan)",
-                deep: "Akar kebalikan artinya jika akar lama 2, akar baru 1/2.",
-                trick: "Rumus The King (Balik): Tukar posisi $a$ (depan) dan $c$ (belakang).",
-                q: "PK baru yang akar-akarnya kebalikan dari $2x^2 - 7x + 3 = 0$ adalah...",
-                opts: ["A. $3x^2 - 7x + 2 = 0$", "B. $3x^2 + 7x + 2 = 0$", "C. $2x^2 + 7x + 3 = 0$", "D. $x^2 - 7x + 6 = 0$", "E. $3x^2 - 2x + 7 = 0$"],
-                ans: "A",
-                exp: "Tukar 2 dan 3. Jadi $3x^2 - 7x + 2 = 0$. Selesai dalam 3 detik."
-            },
-            {
-                id: 39, 
-                cat: "Pers. Kuadrat",
-                topic: "Soal Cerita: Luas Kebun",
-                deep: "Aplikasi geometri. Persegi panjang punya Luas $L = p \\times l$ dan Keliling $K = 2(p+l)$. Ini akan selalu membentuk persamaan kuadrat.",
-                trick: "Logika Faktor: Cari dua angka yang hasil kalinya Luas, dan hasil jumlahnya setengah Keliling.",
-                q: "Sebidang tanah berbentuk persegi panjang kelilingnya 50m dan luasnya 150m². Panjang tanah tersebut adalah...",
-                opts: ["A. 10m", "B. 15m", "C. 20m", "D. 25m", "E. 30m"],
-                ans: "B",
-                exp: "$p+l = 25$ (setengah keliling). $p \\times l = 150$. Angka berapa dikali 150, dijumlah 25? 15 dan 10. Panjang biasanya yang lebih besar, jadi 15m."
-            },
-            {
-                id: 40, 
-                cat: "Pers. Kuadrat",
-                topic: "Soal Cerita: Fisika (Roket)",
-                deep: "Gerak parabola roket $h(t) = vt - gt^2$. Tinggi maksimum dicapai saat roket berhenti sejenak di udara (Puncak Parabola).",
-                trick: "Rumus Puncak Cepat: Waktu maks $t = -b/2a$. Masukkan nilai t balik ke rumus h(t).",
-                q: "Sebuah peluru ditembakkan ke atas dengan rumus tinggi $h(t) = 40t - 5t^2$ (dalam meter). Tinggi maksimum yang dicapai adalah...",
-                opts: ["A. 60 meter", "B. 75 meter", "C. 80 meter", "D. 100 meter", "E. 120 meter"],
-                ans: "C",
-                exp: "$a=-5, b=40$. Waktu puncak $t = -40 / 2(-5) = -40/-10 = 4$ detik. Tinggi saat t=4: $h(4) = 40(4) - 5(4^2) = 160 - 5(16) = 160 - 80 = 80$ meter."
-            }
+        // Bank Soal Latihan (Konsep Dasar & Kehidupan)
+        // Saya menambahkan variasi logika agar generator bisa membuat kombinasi unik
+        const narrativeTemplates = [
+            { q: "mengajak warga membersihkan selokan setiap hari Minggu secara sukarela.", t: "Interaksi", a: "Gotong Royong", w: ["Kooptasi", "Persaingan", "Akomodasi", "Asimilasi"], e: "Kerja sama sukarela untuk tujuan bersama." },
+            { q: "meniru gaya berpakaian idola K-Pop agar terlihat kekinian.", t: "Faktor Interaksi", a: "Imitasi", w: ["Identifikasi", "Sugesti", "Simpati", "Empati"], e: "Imitasi hanya meniru fisik luaran." },
+            { q: "sangat ingin menjadi sama persis (identik) dengan tokoh idolanya hingga mengubah kepribadian.", t: "Faktor Interaksi", a: "Identifikasi", w: ["Imitasi", "Sugesti", "Simpati", "Motivasi"], e: "Identifikasi lebih mendalam daripada imitasi." },
+            { q: "merasa iba melihat pengemis lalu memberikan uang.", t: "Faktor Interaksi", a: "Empati", w: ["Simpati", "Sugesti", "Imitasi", "Identifikasi"], e: "Empati diikuti tindakan nyata." },
+            { q: "mendapat gelar bangsawan karena keturunan orang tua.", t: "Status", a: "Ascribed Status", w: ["Achieved Status", "Assigned Status", "Symbolic Status", "Role Conflict"], e: "Didapat otomatis lewat kelahiran." },
+            { q: "menjadi direktur perusahaan karena kerja keras dan prestasi.", t: "Status", a: "Achieved Status", w: ["Ascribed Status", "Assigned Status", "Symbolic Status", "Latent Status"], e: "Didapat melalui usaha." },
+            { q: "diberi gelar pahlawan oleh pemerintah karena jasanya.", t: "Status", a: "Assigned Status", w: ["Ascribed Status", "Achieved Status", "Role Status", "Active Status"], e: "Diberikan oleh pihak lain atas jasa." },
+            { q: "mengalami kebingungan karena harus memilih antara tugas polisi atau membela anaknya yang bersalah.", t: "Peran", a: "Konflik Peran", w: ["Kegagalan Peran", "Kesenjangan Peran", "Ketegangan Peran", "Jarak Peran"], e: "Tuntutan peran yang bertabrakan." },
+            { q: "tidak menilai baik buruknya fakta kemacetan, hanya mencatat data.", t: "Ciri Sosiologi", a: "Non-Etis", w: ["Empiris", "Teoritis", "Kumulatif", "Spekulatif"], e: "Sosiologi bersifat netral/objektif." },
+            { q: "menyusun teori baru berdasarkan teori-teori lama yang diperbaiki.", t: "Ciri Sosiologi", a: "Kumulatif", w: ["Empiris", "Non-Etis", "Teoritis", "Kritis"], e: "Teori berkembang dari yang sudah ada." },
+            { q: "mengamati data langsung di lapangan, bukan menduga-duga.", t: "Ciri Sosiologi", a: "Empiris", w: ["Teoritis", "Kumulatif", "Non-Etis", "Normatif"], e: "Berdasarkan observasi fakta." },
+            { q: "selalu menyapa orang yang lebih tua karena takut dicemooh warga.", t: "Norma", a: "Norma Kesopanan", w: ["Norma Hukum", "Norma Agama", "Norma Kesusilaan", "Cara (Usage)"], e: "Bersumber dari adat pergaulan, sanksi cemoohan." },
+            { q: "merasa berdosa dan takut hukuman Tuhan jika tidak beribadah.", t: "Norma", a: "Norma Agama", w: ["Norma Hukum", "Norma Kesopanan", "Norma Kesusilaan", "Adat Istiadat"], e: "Bersumber dari Tuhan." },
+            { q: "merasa bersalah dalam hati setelah berbohong meski tidak ada yang tahu.", t: "Norma", a: "Norma Kesusilaan", w: ["Norma Kesopanan", "Norma Hukum", "Norma Agama", "Kebiasaan"], e: "Bersumber dari hati nurani." },
+            { q: "ditilang polisi karena melanggar lampu merah.", t: "Norma", a: "Norma Hukum", w: ["Norma Agama", "Norma Kesusilaan", "Norma Kesopanan", "Tata Kelakuan"], e: "Sanksi tegas dan memaksa dari negara." },
+            { q: "menggunakan gadget mewah hanya demi gengsi dan pamer.", t: "Gejala Sosial", a: "Hedonisme", w: ["Westernisasi", "Sekularisme", "Modernisasi", "Globalisasi"], e: "Mengejar kesenangan materi semata." },
+            { q: "terlibat tawuran antar pelajar untuk mempertahankan nama sekolah.", t: "Interaksi", a: "Konflik (Pertentangan)", w: ["Kompetisi", "Kontravensi", "Akomodasi", "Asimilasi"], e: "Bentuk disosiatif dengan kekerasan." },
+            { q: "bersaing secara sehat dalam olimpiade sains untuk menjadi juara.", t: "Interaksi", a: "Kompetisi", w: ["Konflik", "Kontravensi", "Koersi", "Amalgamasi"], e: "Bersaing tanpa kekerasan." },
+            { q: "menjadi penengah netral dalam konflik warga tanpa memihak.", t: "Akomodasi", a: "Mediasi", w: ["Arbitrase", "Ajudikasi", "Koersi", "Kompromi"], e: "Pihak ketiga hanya penasihat." },
+            { q: "memutuskan perkara sengketa tanah di pengadilan secara mengikat.", t: "Akomodasi", a: "Ajudikasi", w: ["Mediasi", "Arbitrase", "Koersi", "Konsiliasi"], e: "Penyelesaian lewat pengadilan." }
         ];
 
-        // ====================================================================================
-        // KOMPONEN RENDER MATEMATIKA (MATHJAX)
-        // ====================================================================================
-        const MathContent = ({ content }) => {
-            const nodeRef = useRef(null);
+        // Bank Soal HOTS (Teori & Analisis)
+        const hotsTemplates = [
+            { q: "Fenomena 'Citayam Fashion Week' sebagai resistensi kelas bawah terhadap budaya elit Sudirman. Analisis Teori Konflik Marx melihat ini sebagai...", a: "Pertentangan kelas simbolik", w: ["Solidaritas organik", "Fungsi manifes hiburan", "Tindakan tradisional", "Asimilasi budaya"], e: "Perebutan ruang publik antara kelas proletar dan borjuis." },
+            { q: "Masyarakat menolak vaksinasi karena dianggap melanggar kepercayaan leluhur. Menurut Weber, ini adalah...", a: "Tindakan Rasional Nilai", w: ["Tindakan Instrumental", "Tindakan Afektif", "Tindakan Tradisional", "Irasional"], e: "Tindakan sadar demi mempertahankan nilai absolut." },
+            { q: "Sekolah menerapkan kurikulum yang bias kelas menengah, membuat anak miskin gagal. Bourdieu menyebut ini...", a: "Kekerasan Simbolik", w: ["Mobilitas Vertikal", "Meritokrasi", "Fungsi Laten", "Disorganisasi"], e: "Dominasi budaya yang dipaksakan secara halus." },
+            { q: "Tingginya angka bunuh diri saat krisis ekonomi karena hilangnya pegangan norma. Durkheim menyebutnya...", a: "Anomie", w: ["Alienasi", "Egoistik", "Altruistik", "Cultural Lag"], e: "Kondisi tanpa norma/kebingungan aturan." },
+            { q: "Penggunaan CCTV di seluruh kota mendisiplinkan tubuh warga agar patuh. Foucault menyebut konsep ini...", a: "Panopticon", w: ["Iron Cage", "Dramaturgi", "Habitus", "Verstehen"], e: "Pengawasan total yang membuat individu mendisiplinkan diri sendiri." },
+            { q: "Birokrasi modern menjebak manusia dalam aturan kaku yang mematikan kreativitas. Weber menyebutnya...", a: "Iron Cage (Kerangkeng Besi)", w: ["Anomie", "Alienasi", "Habitus", "Hyperreality"], e: "Rasionalitas yang berlebihan mengekang kebebasan manusia." },
+            { q: "Buruh merasa asing dengan produk yang dibuatnya sendiri karena ia hanya menjadi sekrup mesin. Marx menyebut ini...", a: "Alienasi", w: ["Anomie", "Hegemoni", "Fetisisme Komoditas", "Solidaritas Mekanik"], e: "Keterasingan pekerja dari hasil karyanya." },
+            { q: "Masyarakat desa berubah dari ikatan batin menjadi ikatan kepentingan bisnis. Tonnies menyebut peralihan ini...", a: "Gemeinschaft ke Gesellschaft", w: ["Mekanik ke Organik", "Tradisional ke Modern", "Paguyuban ke Patembayan", "In-Group ke Out-Group"], e: "Perubahan dari paguyuban ke patembayan." },
+            { q: "Realitas media sosial menjadi lebih nyata daripada kenyataan itu sendiri (hiperrealitas). Tokohnya adalah...", a: "Jean Baudrillard", w: ["Karl Marx", "Max Weber", "Auguste Comte", "Talcott Parsons"], e: "Simulacra dan Hiperrealitas." },
+            { q: "Perubahan sosial tidak selalu linier, bisa saja mundur atau berputar (Siklus). Teori ini dikemukakan...", a: "Ibnu Khaldun / Sorokin", w: ["Auguste Comte", "Spencer", "Darwin", "Parsons"], e: "Teori Siklus melihat peradaban lahir, tumbuh, dan mati." }
+        ];
+
+        // --- 2. LOGIKA GENERATOR UNIK ---
+
+        const shuffle = (array) => array.sort(() => Math.random() - 0.5);
+
+        const generateUniqueQuestions = (mode) => {
+            const targetCount = mode === 'LATIHAN' ? 100 : 50;
+            const templates = mode === 'LATIHAN' ? narrativeTemplates : hotsTemplates;
+            const generatedSet = new Set(); // Untuk mencegah duplikasi narasi persis
+            const finalQuestions = [];
             
-            useEffect(() => {
-                if (window.MathJax && nodeRef.current) {
-                    // Reset konten dulu agar MathJax memproses ulang
-                    nodeRef.current.innerHTML = content;
-                    window.MathJax.typesetPromise([nodeRef.current]).catch(err => console.error(err));
+            let id = 1;
+            let safetyCounter = 0; // Mencegah infinite loop
+
+            while (finalQuestions.length < targetCount && safetyCounter < 1000) {
+                // 1. Pilih Template Acak
+                const tpl = templates[Math.floor(Math.random() * templates.length)];
+                
+                // 2. Pilih Subjek & Konteks Acak
+                const subj = subjects[Math.floor(Math.random() * subjects.length)];
+                const ctx = contexts[Math.floor(Math.random() * contexts.length)];
+                
+                // 3. Rakit Narasi
+                let text = "";
+                if (mode === 'LATIHAN') {
+                    // Narasi sehari-hari
+                    text = `${subj} ${ctx} ${tpl.q}`;
+                    // Variasi struktur kalimat agar tidak monoton
+                    if (Math.random() > 0.5) text = `Pada saat ${ctx}, ${subj} ${tpl.q}`;
+                } else {
+                    // Narasi Akademik HOTS
+                    const intros = ["Analisis Kasus:", "Dalam perspektif sosiologi kritis:", "Fenomena sosial menunjukkan:"];
+                    const intro = intros[Math.floor(Math.random() * intros.length)];
+                    text = `${intro} ${tpl.q} Hal ini terlihat pada kasus ${subj} ${ctx}.`;
                 }
-            }, [content]);
 
-            return <span ref={nodeRef} className="math-font" dangerouslySetInnerHTML={{ __html: content }} />;
-        };
-
-        // ====================================================================================
-        // APLIKASI UTAMA
-        // ====================================================================================
-        const App = () => {
-            const [activeId, setActiveId] = useState(1);
-            const [showExp, setShowExp] = useState(false);
-            const [answers, setAnswers] = useState({}); // Menyimpan jawaban user { 1: "A", 2: "C" }
-            const activeItem = courseData.find(item => item.id === activeId);
-
-            const handleOptionClick = (optPrefix) => {
-                if (!answers[activeId]) {
-                    setAnswers(prev => ({ ...prev, [activeId]: optPrefix }));
-                    setShowExp(true);
-                }
-            };
-
-            const nextQuestion = () => {
-                if (activeId < 40) {
-                    setActiveId(prev => prev + 1);
-                    setShowExp(!!answers[activeId + 1]);
-                }
-            };
-
-            const prevQuestion = () => {
-                if (activeId > 1) {
-                    setActiveId(prev => prev - 1);
-                    setShowExp(!!answers[activeId - 1]);
-                }
-            };
-
-            const totalScore = Object.keys(answers).filter(key => {
-                const q = courseData.find(item => item.id === parseInt(key));
-                return answers[key] === q.ans;
-            }).length;
-
-            return (
-                <div className="min-h-screen p-4 md:p-8 flex flex-col items-center">
+                // 4. Cek Keunikan (Jika teks sudah ada, skip)
+                if (!generatedSet.has(text)) {
+                    generatedSet.add(text);
                     
-                    {/* HEADER NEON */}
-                    <div className="w-full max-w-5xl mb-8 flex flex-col md:flex-row justify-between items-center glass-panel p-6 rounded-2xl animate-fade">
-                        <div>
-                            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400 mb-2">
-                                MATH MASTER <span className="text-white text-sm font-normal bg-sky-600 px-2 py-1 rounded ml-2">PLATINUM</span>
-                            </h1>
-                            <p className="text-slate-400 text-sm font-mono">Kelas X • Semester 1 • 40 Paket Soal</p>
-                        </div>
-                        <div className="mt-4 md:mt-0 flex gap-6 text-right">
-                            <div>
-                                <div className="text-xs text-slate-500 uppercase tracking-widest">Progress</div>
-                                <div className="text-2xl font-bold text-white">{Object.keys(answers).length}<span className="text-slate-500 text-lg">/40</span></div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 uppercase tracking-widest">Score</div>
-                                <div className="text-2xl font-bold text-emerald-400">{totalScore * 2.5}</div>
-                            </div>
-                        </div>
-                    </div>
+                    // 5. Acak Jawaban
+                    const opts = shuffle([
+                        { text: tpl.a, correct: true },
+                        { text: tpl.w[0], correct: false },
+                        { text: tpl.w[1], correct: false },
+                        { text: tpl.w[2], correct: false },
+                        { text: tpl.w[3], correct: false }
+                    ]);
 
-                    <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        
-                        {/* SIDEBAR NAVIGASI (KIRI) */}
-                        <div className="lg:col-span-3 order-2 lg:order-1">
-                            <div className="glass-panel p-4 rounded-2xl sticky top-6">
-                                <h3 className="text-xs font-bold text-slate-500 uppercase mb-4 tracking-wider">Navigasi Soal</h3>
-                                <div className="grid grid-cols-5 gap-2 max-h-[60vh] overflow-y-auto pr-1">
-                                    {courseData.map(item => {
-                                        const isAnswered = answers[item.id];
-                                        const isCorrect = isAnswered === item.ans;
-                                        const isActive = item.id === activeId;
-                                        
-                                        let btnColor = "bg-slate-800/50 text-slate-500 hover:bg-slate-700";
-                                        if (isAnswered) btnColor = isCorrect ? "bg-emerald-900/40 text-emerald-400 border border-emerald-800" : "bg-rose-900/40 text-rose-400 border border-rose-800";
-                                        if (isActive) btnColor = "bg-sky-600 text-white shadow-lg shadow-sky-500/30 scale-105";
-
-                                        return (
-                                            <button 
-                                                key={item.id}
-                                                onClick={() => { setActiveId(item.id); setShowExp(!!answers[item.id]); }}
-                                                className={`aspect-square rounded-lg text-xs font-bold transition-all ${btnColor}`}
-                                            >
-                                                {item.id}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* KONTEN UTAMA (KANAN) */}
-                        <div className="lg:col-span-9 order-1 lg:order-2 space-y-6">
-                            
-                            {/* MATERI CARD */}
-                            <div className="glass-panel p-6 rounded-2xl border-l-4 border-sky-500 animate-fade">
-                                <div className="flex justify-between items-start mb-4">
-                                    <span className="bg-sky-500/20 text-sky-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border border-sky-500/30">
-                                        {activeItem.cat}
-                                    </span>
-                                    <h2 className="text-xl font-bold text-white text-right">{activeItem.topic}</h2>
-                                </div>
-                                
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div className="bg-slate-900/40 p-4 rounded-xl">
-                                        <div className="flex items-center gap-2 mb-2 text-indigo-400 font-bold text-sm uppercase">
-                                            <span>🧠</span> Deep Learning
-                                        </div>
-                                        <p className="text-sm text-slate-300 leading-relaxed text-justify">
-                                            <MathContent content={activeItem.deep} />
-                                        </p>
-                                    </div>
-                                    <div className="bg-slate-900/40 p-4 rounded-xl border border-yellow-500/10">
-                                        <div className="flex items-center gap-2 mb-2 text-yellow-400 font-bold text-sm uppercase">
-                                            <span>⚡</span> The King Formula
-                                        </div>
-                                        <p className="text-sm text-slate-300 leading-relaxed text-justify">
-                                            <MathContent content={activeItem.trick} />
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* SOAL CARD */}
-                            <div className="glass-panel p-6 rounded-2xl relative overflow-hidden animate-fade">
-                                <div className="absolute top-0 right-0 p-4 opacity-5 text-9xl font-black text-white select-none pointer-events-none">
-                                    {activeItem.id}
-                                </div>
-                                
-                                <div className="mb-8 relative z-10">
-                                    <h3 className="text-lg md:text-xl text-white font-medium leading-loose">
-                                        <MathContent content={activeItem.q} />
-                                    </h3>
-                                </div>
-
-                                <div className="grid gap-3 relative z-10">
-                                    {activeItem.opts.map((opt) => {
-                                        const prefix = opt.charAt(0);
-                                        const isSelected = answers[activeItem.id] === prefix;
-                                        const isCorrect = activeItem.ans === prefix;
-                                        const isRevealed = !!answers[activeItem.id];
-
-                                        let btnClass = "bg-slate-800/40 border border-slate-700 hover:bg-slate-700/50 text-slate-300";
-                                        
-                                        if (isRevealed) {
-                                            if (isCorrect) btnClass = "bg-emerald-600 border-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]";
-                                            else if (isSelected) btnClass = "bg-rose-600 border-rose-500 text-white opacity-50";
-                                            else btnClass = "bg-slate-900/30 opacity-40 blur-[1px]";
-                                        }
-
-                                        return (
-                                            <button
-                                                key={opt}
-                                                disabled={isRevealed}
-                                                onClick={() => handleOptionClick(prefix)}
-                                                className={`w-full p-4 rounded-xl text-left transition-all duration-300 group ${btnClass}`}
-                                            >
-                                                <div className="flex items-center gap-4">
-                                                    <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${isRevealed && isCorrect ? 'bg-white text-emerald-600' : 'bg-slate-900 text-slate-500'}`}>
-                                                        {prefix}
-                                                    </span>
-                                                    <span className="text-base font-medium">
-                                                        <MathContent content={opt.substring(3)} />
-                                                    </span>
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* PEMBAHASAN & NAVIGASI BAWAH */}
-                            {showExp && (
-                                <div className="glass-panel p-6 rounded-2xl border-t-2 border-emerald-500 animate-fade">
-                                    <h3 className="text-emerald-400 font-bold mb-3 flex items-center gap-2">
-                                        <span>💡</span> Pembahasan Lengkap
-                                    </h3>
-                                    <div className="text-sm text-slate-300 leading-loose text-justify bg-slate-900/30 p-4 rounded-xl">
-                                        <MathContent content={activeItem.exp} />
-                                    </div>
-                                    <div className="mt-6 flex justify-between items-center">
-                                        <button onClick={prevQuestion} disabled={activeId===1} className="text-slate-500 hover:text-white px-4 py-2 disabled:opacity-30">
-                                            ← Sebelumnya
-                                        </button>
-                                        <button onClick={nextQuestion} disabled={activeId===40} className="bg-sky-600 hover:bg-sky-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-sky-600/20 transition-all transform hover:-translate-y-1">
-                                            Lanjut Soal Berikutnya →
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                        </div>
-                    </div>
-                </div>
-            );
+                    finalQuestions.push({
+                        id: id++,
+                        text: text,
+                        category: tpl.t || "Analisis",
+                        options: opts,
+                        explanation: tpl.e
+                    });
+                }
+                safetyCounter++;
+            }
+            return finalQuestions;
         };
+
+        // --- 3. KOMPONEN UTAMA ---
+
+        function App() {
+            const [view, setView] = React.useState('MENU'); 
+            const [mode, setMode] = React.useState(null);
+            const [questions, setQuestions] = React.useState([]);
+            const [currentIdx, setCurrentIdx] = React.useState(0);
+            const [answers, setAnswers] = React.useState({});
+            const [timeLeft, setTimeLeft] = React.useState(0);
+            
+            // SECURITY STATES
+            const [isLocked, setIsLocked] = React.useState(false);
+            const [violationCount, setViolationCount] = React.useState(0);
+            const [showSidebar, setShowSidebar] = React.useState(false);
+
+            // --- FUNGSI KEAMANAN & FULLSCREEN ---
+            
+            const enterFullscreen = () => {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) elem.requestFullscreen().catch(err => console.log(err));
+                else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+            };
+
+            // Deteksi Keluar / Blur / Notifikasi Overlay
+            React.useEffect(() => {
+                if (view !== 'QUIZ' || mode !== 'UJIAN') return;
+
+                const handleVisibility = () => {
+                    if (document.hidden) triggerLock("Mendeteksi perpindahan Tab/Aplikasi!");
+                };
+
+                const handleBlur = () => {
+                    // Blur terjadi jika user klik notifikasi atau alt-tab
+                    triggerLock("Layar kehilangan fokus! Jangan buka notifikasi.");
+                };
+
+                const handleFullscreenChange = () => {
+                    if (!document.fullscreenElement) {
+                        triggerLock("Dilarang keluar dari Mode Fullscreen!");
+                    }
+                };
+
+                document.addEventListener("visibilitychange", handleVisibility);
+                window.addEventListener("blur", handleBlur);
+                document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+                // Mencegah refresh/back button
+                window.onbeforeunload = () => "Anda sedang ujian!";
+
+                return () => {
+                    document.removeEventListener("visibilitychange", handleVisibility);
+                    window.removeEventListener("blur", handleBlur);
+                    document.removeEventListener("fullscreenchange", handleFullscreenChange);
+                    window.onbeforeunload = null;
+                };
+            }, [view, mode]);
+
+            const triggerLock = (reason) => {
+                setViolationCount(prev => {
+                    const newCount = prev + 1;
+                    if (newCount >= 3) {
+                        finishQuiz(true); // Diskualifikasi
+                        return newCount;
+                    }
+                    return newCount;
+                });
+                setIsLocked(true);
+            };
+
+            const unlockScreen = () => {
+                enterFullscreen();
+                setIsLocked(false);
+            };
+
+            // --- LOGIKA UTAMA ---
+
+            const startQuiz = (selectedMode) => {
+                const q = generateUniqueQuestions(selectedMode);
+                setQuestions(q);
+                setMode(selectedMode);
+                setView('QUIZ');
+                setAnswers({});
+                setCurrentIdx(0);
+                setViolationCount(0);
+                setIsLocked(false);
+                
+                if (selectedMode === 'UJIAN') {
+                    enterFullscreen();
+                    setTimeLeft(90 * 60); // 90 Menit
+                } else {
+                    setTimeLeft(0);
+                }
+            };
+
+            const handleAnswer = (option) => {
+                // Di mode latihan, jika sudah jawab, tidak bisa ubah agar bisa lihat pembahasan
+                if (mode === 'LATIHAN' && answers[currentIdx]) return;
+                
+                setAnswers(prev => ({
+                    ...prev,
+                    [currentIdx]: { isCorrect: option.correct, text: option.text }
+                }));
+            };
+
+            const jumpTo = (idx) => {
+                setCurrentIdx(idx);
+                setShowSidebar(false);
+            };
+
+            const nextQ = () => {
+                if (currentIdx < questions.length - 1) setCurrentIdx(currentIdx + 1);
+                else finishQuiz(false);
+            };
+
+            const finishQuiz = (disqualified = false) => {
+                if (document.fullscreenElement) document.exitFullscreen().catch(e => {});
+                if (disqualified) {
+                    alert("ANDA DIDISKUALIFIKASI KARENA MELANGGAR ATURAN KEAMANAN 3 KALI.");
+                    setView('MENU');
+                } else {
+                    setView('RESULT');
+                }
+            };
+
+            // Timer
+            React.useEffect(() => {
+                if (view === 'QUIZ' && mode === 'UJIAN' && timeLeft > 0 && !isLocked) {
+                    const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
+                    return () => clearInterval(timer);
+                } else if (timeLeft === 0 && view === 'QUIZ' && mode === 'UJIAN') {
+                    finishQuiz(false);
+                }
+            }, [timeLeft, view, mode, isLocked]);
+
+            const formatTime = (s) => {
+                const m = Math.floor(s / 60);
+                const sec = s % 60;
+                return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+            };
+
+            // --- RENDER ---
+
+            // 1. LAYAR TERKUNCI (SECURITY)
+            if (isLocked) {
+                return (
+                    <div className="lock-screen font-mono">
+                        <i className="ph-fill ph-lock-key text-8xl mb-4 animate-bounce"></i>
+                        <h1 className="text-4xl font-bold mb-2">SECURITY LOCKOUT</h1>
+                        <p className="text-xl mb-6 text-white">Sistem mendeteksi aktivitas mencurigakan.</p>
+                        
+                        <div className="bg-red-900/50 p-6 rounded-xl border border-red-500 mb-8">
+                            <h2 className="text-2xl font-bold text-red-400">PELANGGARAN {violationCount}/3</h2>
+                            <p className="text-sm text-red-200 mt-2">Jika mencapai 3, ujian otomatis GAGAL.</p>
+                        </div>
+
+                        <button onClick={unlockScreen} className="bg-white text-red-900 px-8 py-3 rounded-full font-bold hover:bg-gray-200 transition">
+                            KEMBALI KE UJIAN (FULLSCREEN)
+                        </button>
+                    </div>
+                );
+            }
+
+            // 2. MENU UTAMA
+            if (view === 'MENU') {
+                return (
+                    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+                        <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 fade-in">
+                            <div className="text-center md:col-span-2 text-white mb-4">
+                                <h1 className="text-4xl font-bold mb-2">Sosiologi <span className="text-blue-500">Secure Browser</span></h1>
+                                <p className="text-slate-400">Platform Ujian & Latihan Terproteksi</p>
+                            </div>
+
+                            <button onClick={() => startQuiz('LATIHAN')} className="bg-emerald-600 hover:bg-emerald-700 text-white p-6 rounded-2xl text-left shadow-lg group transition hover:-translate-y-1">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="bg-emerald-800 p-3 rounded-lg"><i className="ph-fill ph-student text-2xl"></i></div>
+                                    <span className="bg-emerald-800 text-xs font-bold px-2 py-1 rounded">100 SOAL</span>
+                                </div>
+                                <h2 className="text-2xl font-bold mb-1">Mode Latihan</h2>
+                                <p className="text-emerald-100 text-sm mb-4">Belajar santai dengan pembahasan langsung.</p>
+                                <ul className="text-sm space-y-1 opacity-80">
+                                    <li>✅ Navigasi Soal Bebas</li>
+                                    <li>✅ Pembahasan Tiap Nomor</li>
+                                    <li>✅ Tanpa Timer</li>
+                                </ul>
+                            </button>
+
+                            <button onClick={() => startQuiz('UJIAN')} className="bg-rose-600 hover:bg-rose-700 text-white p-6 rounded-2xl text-left shadow-lg group transition hover:-translate-y-1">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="bg-rose-800 p-3 rounded-lg"><i className="ph-fill ph-shield-check text-2xl"></i></div>
+                                    <span className="bg-rose-800 text-xs font-bold px-2 py-1 rounded">50 HOTS</span>
+                                </div>
+                                <h2 className="text-2xl font-bold mb-1">Mode Ujian Aman</h2>
+                                <p className="text-rose-100 text-sm mb-4">Simulasi ujian ketat dengan sistem keamanan.</p>
+                                <ul className="text-sm space-y-1 opacity-80">
+                                    <li>🔒 <b>Layar Terkunci (Kiosk)</b></li>
+                                    <li>⚠️ Deteksi Keluar Aplikasi</li>
+                                    <li>⏱️ Waktu 90 Menit</li>
+                                </ul>
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // 3. LAYAR KUIS
+            if (view === 'QUIZ') {
+                const q = questions[currentIdx];
+                const ans = answers[currentIdx];
+                const themeClass = mode === 'LATIHAN' ? 'bg-emerald-50 text-slate-800' : 'bg-slate-900 text-white';
+                
+                return (
+                    <div className={`h-screen flex flex-col md:flex-row overflow-hidden ${themeClass}`}>
+                        
+                        {/* SIDEBAR NAVIGASI (Hanya Latihan atau Toggle di Ujian) */}
+                        <div className={`
+                            fixed md:relative z-20 w-72 h-full bg-white text-slate-800 shadow-xl transform transition-transform duration-300 flex flex-col
+                            ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                            ${mode === 'UJIAN' ? 'md:hidden' : ''} 
+                        `}>
+                            <div className="p-4 border-b flex justify-between items-center bg-slate-50">
+                                <h3 className="font-bold text-sm uppercase">Peta Soal</h3>
+                                <button onClick={() => setShowSidebar(false)} className="md:hidden"><i className="ph-bold ph-x"></i></button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-2">
+                                <div className="grid grid-cols-5 gap-2">
+                                    {questions.map((_, i) => {
+                                        let statusClass = "bg-slate-100 text-slate-400";
+                                        if (i === currentIdx) statusClass = "bg-blue-600 text-white ring-2 ring-blue-300";
+                                        else if (answers[i]) {
+                                            if (mode === 'LATIHAN') statusClass = answers[i].isCorrect ? "bg-emerald-500 text-white" : "bg-red-500 text-white";
+                                            else statusClass = "bg-slate-700 text-white"; // Ujian tidak kasih spoiler
+                                        }
+                                        return (
+                                            <button key={i} onClick={() => jumpTo(i)} className={`aspect-square rounded text-xs font-bold ${statusClass}`}>
+                                                {i + 1}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* KONTEN UTAMA */}
+                        <div className="flex-1 flex flex-col h-full relative">
+                            {/* Header */}
+                            <div className={`px-6 py-3 flex justify-between items-center z-10 shadow-sm ${mode === 'LATIHAN' ? 'bg-white' : 'bg-slate-800 border-b border-slate-700'}`}>
+                                <div className="flex items-center gap-3">
+                                    <button onClick={() => setShowSidebar(true)} className="md:hidden p-2 rounded bg-slate-200 text-slate-700"><i className="ph-bold ph-list"></i></button>
+                                    <span className="font-bold">{mode}</span>
+                                </div>
+                                
+                                {mode === 'UJIAN' && (
+                                    <div className="flex items-center gap-4">
+                                        <div className="hidden md:flex items-center gap-2 text-xs font-bold text-rose-500 bg-rose-900/20 px-3 py-1 rounded border border-rose-500/50 animate-pulse">
+                                            <i className="ph-fill ph-lock-key"></i> SECURE MODE
+                                        </div>
+                                        <div className="font-mono text-xl font-bold bg-slate-900 px-3 py-1 rounded border border-slate-600 text-white">
+                                            {formatTime(timeLeft)}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <button onClick={() => finishQuiz(false)} className="text-sm font-bold opacity-60 hover:opacity-100">Selesai</button>
+                            </div>
+
+                            {/* Area Soal */}
+                            <div className="flex-1 overflow-y-auto p-6 md:p-10 relative">
+                                <div className="max-w-3xl mx-auto pb-12">
+                                    <div className="flex justify-between text-xs font-bold uppercase tracking-widest opacity-50 mb-2">
+                                        <span>Soal {currentIdx + 1}</span>
+                                        <span>{q.category}</span>
+                                    </div>
+
+                                    {/* Soal Box */}
+                                    <div className={`p-6 md:p-8 rounded-2xl mb-6 shadow-sm border-2 ${mode === 'LATIHAN' ? 'bg-white border-transparent' : 'bg-slate-800 border-slate-700'}`}>
+                                        <p className="text-lg md:text-xl leading-relaxed narrative-text select-none">{q.text}</p>
+                                    </div>
+
+                                    {/* Opsi Jawaban */}
+                                    <div className="space-y-3">
+                                        {q.options.map((opt, i) => {
+                                            const isSelected = ans && ans.text === opt.text;
+                                            let btnClass = "w-full text-left p-4 rounded-xl border-2 flex items-center transition-all select-none ";
+                                            
+                                            if (mode === 'LATIHAN') {
+                                                if (ans) {
+                                                    if (opt.correct) btnClass += "bg-emerald-100 border-emerald-500 text-emerald-900";
+                                                    else if (isSelected) btnClass += "bg-red-100 border-red-500 text-red-900";
+                                                    else btnClass += "bg-white border-slate-100 opacity-50";
+                                                } else {
+                                                    btnClass += "bg-white border-slate-200 hover:border-emerald-400 hover:bg-emerald-50";
+                                                }
+                                            } else {
+                                                // UJIAN
+                                                if (ans) {
+                                                    if (isSelected) btnClass += "bg-blue-600 border-blue-500 text-white shadow-lg";
+                                                    else btnClass += "bg-slate-800 border-slate-700 opacity-50";
+                                                } else {
+                                                    btnClass += "bg-slate-800 border-slate-700 hover:bg-slate-700 hover:border-slate-500 text-slate-300";
+                                                }
+                                            }
+
+                                            return (
+                                                <button key={i} onClick={() => handleAnswer(opt)} disabled={!!ans && mode === 'LATIHAN'} className={btnClass}>
+                                                    <span className="w-8 h-8 rounded-full border flex items-center justify-center mr-4 text-xs font-bold opacity-70">
+                                                        {String.fromCharCode(65 + i)}
+                                                    </span>
+                                                    <span className="font-medium">{opt.text}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {/* Pembahasan (Hanya Latihan) */}
+                                    {mode === 'LATIHAN' && ans && (
+                                        <div className="mt-8 p-6 bg-emerald-100 border-l-4 border-emerald-500 rounded-r-xl fade-in text-emerald-900">
+                                            <h4 className="font-bold flex items-center gap-2 mb-2"><i className="ph-fill ph-lightbulb"></i> Pembahasan</h4>
+                                            <p className="text-sm leading-relaxed">{q.explanation}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Navigasi Bawah */}
+                                    <div className="mt-10 flex justify-end">
+                                        <button onClick={nextQ} className={`px-8 py-3 rounded-lg font-bold shadow-lg flex items-center gap-2 ${mode === 'LATIHAN' ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
+                                            {currentIdx === questions.length - 1 ? 'Lihat Hasil' : 'Selanjutnya'} <i className="ph-bold ph-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // 4. HASIL
+            if (view === 'RESULT') {
+                const score = Math.round((Object.values(answers).filter(a => a.isCorrect).length / questions.length) * 100);
+                return (
+                    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 text-white">
+                        <div className="bg-slate-800 p-8 rounded-3xl max-w-md w-full text-center shadow-2xl fade-in border border-slate-700">
+                            <h2 className="text-3xl font-bold mb-6">Hasil Akhir</h2>
+                            <div className={`text-7xl font-black mb-2 ${score > 75 ? 'text-emerald-400' : 'text-rose-400'}`}>{score}</div>
+                            <div className="inline-block px-3 py-1 bg-slate-900 rounded-full text-xs font-bold text-slate-400 mb-8 border border-slate-600">SKOR FINAL</div>
+                            
+                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                <div className="bg-emerald-900/30 border border-emerald-500/30 p-4 rounded-xl text-emerald-400">
+                                    <div className="text-2xl font-bold">{Object.values(answers).filter(a => a.isCorrect).length}</div>
+                                    <div className="text-xs font-bold opacity-70">BENAR</div>
+                                </div>
+                                <div className="bg-rose-900/30 border border-rose-500/30 p-4 rounded-xl text-rose-400">
+                                    <div className="text-2xl font-bold">{questions.length - Object.values(answers).filter(a => a.isCorrect).length}</div>
+                                    <div className="text-xs font-bold opacity-70">SALAH</div>
+                                </div>
+                            </div>
+                            
+                            <button onClick={() => setView('MENU')} className="w-full bg-white text-slate-900 font-bold py-4 rounded-xl hover:bg-slate-200 transition">Kembali ke Menu</button>
+                        </div>
+                    </div>
+                );
+            }
+        }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
 </body>
 </html>
+
+
